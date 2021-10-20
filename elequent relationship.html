@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+
+Model ar modde input gula dite hobe
+migration ar table ar modde all input and ralation gula dite hobe
+jemon>>>
+$table->id();
+$table->string('comment');
+$table->unsignedBigInteger('user_id');
+$table->unsignedBigInteger('post_id');
+$table->foreign('post_id')->references('id')->on('posts');
+$table->foreign('user_id')->references('id')->on('users');
+$table->timestamps();
+
+arpor migrate kore nite hobe>>>>
+xampp theke table ar modde sob insert kore nite hobe
+
+database design >>>
+post belongs to category, post ak category te belongs kore.
+belongsTo mane one to one relation.
+post and category ar modde theke post table a show korbo tai,
+post Model a kaj korbo,,, post model a bole dilam je category ar sathe akta relation ace
+Post Model>>>
+public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+akhon index.blade.php te jodi post ke view korai and category sob ante chai tahle
+<p>{{ $post->category }}</p>
+likhlei categoryr sob chole asbe.
+
+jodi sudu categoryr name dekhte chai tahle
+<p>{{ $post->category->name }}</p>
+
+aki sathe categoryr akadik jinis dekhate chaile
+<p>{{ $post->category->name }} {{ $post->category->created_at }}</p>
+one to one relation ses hoyece.
+
+akta categoryr undary joto post ace ta dekhbo
+hasMany ralation mane one to many relation
+prothome akta link ar maddome dekhbo je ai category te click korke ai categorir undare koto gula post ace
+<a href="{{ route('categories.index', $post->category->id) }}"> <mark>{{ $post->category->name }}</mark> </a>
+Conteoller a ja likhbo.
+public function categoriesShow($id)
+{
+    $category = Category::find($id);
+    return view('frontend.pages.categories.show', compact('category'));
+}
+
+Model Category>>
+public function posts()
+{
+    return $this->hasMany(Post::class);
+}
+
+show korbo jei page a 
+show.blade.php
+<div class="container">
+    <h2>{{ $category->name }}</h2>
+@foreach ($category->posts as $post)
+    <div class="row">
+        <p>{{ $post->title }}</p>
+        <p>{{ $post->slug }}</p>
+        <p>{{ $post->description }}</p>
+        <p>{{ $post->status }}</p>
+        <p>{{ $post->category->id }} {{ $post->category->name }}</p>
+    </div>
+    <hr>
+@endforeach
+</div>
+
+one to many ralation dekha ses
+
+akta post ar modde joto gula comment thakbe ta oi post ar modde nei, 
+onno akta table a oi comment gula ace,
+onno table theke niye asar jonno hasMany use korte hobe
+
+Model Post>
+public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+Model User>
+public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+Model Post>
+public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+Model PostTag
+public function post()
+    {
+        return $this->belongsTo(Post::class);
+    }
+    public function tag()
+    {
+        return $this->belongsTo(Tag::class);
+    }
+Model Comment>
+public function post()
+    {
+        return $this->belongsTo(Post::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+show.blade.php te view kore dekhbo
+<div class="container">
+    <h2>{{ $post->title }}</h2>
+    <p>{{ $post->slug }}</p>
+    <p>{{ $post->description }}</p>
+    <p>{{ $post->status }}</p>
+    <br>
+    <hr>
+    <!-- aikhan theke hasMany kaj korbe -->
+    <h3>Comments:</h3>
+    @foreach ($post->comments as $comment)
+        <div class="row">
+            <p>{{ $comment->comment }} at {{ $comment->post->title }} by - {{ $comment->user->name }}</p>    
+            <p>at - {{ $comment->created_at->diffForHumans() }}</p>
+        </div>
+        <div style="width: 150px; height: auto;border-bottom:1px dotted green;"></div>
+    @endforeach
+</div>
+
+
+<!-- Many to Many Relationship -->
+Post Separate table
+Tag Separate Table
+PostTag holo Post and Tag ar dara gothito akta separate table 
+
+Post Model>
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+
+Tag Model>
+public function posts()
+    {
+        return $this->belongsToMany(Post::class);
+    }
+
+view korbo show.blade.php ar modde
+    @foreach ($post->tags as $tag)
+        <mark>{{ $tag->name }}</mark>
+    @endforeach
+
+error asar karon many to many ar jonno plural table name hobe na 
+tai PostTag migration ar betor jeye dui jaigai post_tags kete post_tag likhe dibo
+
+Schema::create('post_tag', function (Blueprint $table) {
+Schema::dropIfExists('post_tag');
+
+and>>>
+PostTag Model ar modde jeye protected kore dibo
+protected $table = 'post_tag';
+ 
+akhon xampp theke database a jeye post_tags table change kore post_tag likhe dibo
+localhost>post_tags>Operations>rename>>post_tag>go> 
+
+akhon sob thik hoye jabe
+
+
+
+
+
+
+
+</body>
+</html>
