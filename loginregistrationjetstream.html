@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+composer require laravel/jetstream 
+php artisan jetstream:install livewire
+npm install
+npm run dev
+changes in the database>migrations
+public function up()
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('usertype')->default(0);
+            $table->string('phone')->nullable();
+            $table->string('address')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->foreignId('current_team_id')->nullable();
+            $table->string('profile_photo_path', 2048)->nullable();
+            $table->timestamps();
+        });
+    }
+php artisan migrate
+end>> login and registration adding successfully done
+now change the registration form>
+views>auth>register.blade.php 
+<form method="POST" action="{{ route('register') }}">
+    @csrf
+
+    <div>
+        <x-jet-label for="name" value="{{ __('Name') }}" />
+        <x-jet-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
+    </div>
+
+    <div class="mt-4">
+        <x-jet-label for="email" value="{{ __('Email') }}" />
+        <x-jet-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
+    </div>
+<!-- custom Adding start -->
+    <div class="mt-4">
+        <x-jet-label for="phone" value="{{ __('Phone') }}" />
+        <x-jet-input id="phone" class="block mt-1 w-full" type="number" name="phone" :value="old('phone')" required />
+    </div>
+
+    <div class="mt-4">
+        <x-jet-label for="address" value="{{ __('Address') }}" />
+        <x-jet-input id="address" class="block mt-1 w-full" type="text" name="address" :value="old('address')" required />
+    </div>
+<!-- custom Adding end -->
+    <div class="mt-4">
+        <x-jet-label for="password" value="{{ __('Password') }}" />
+        <x-jet-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
+    </div>
+
+    <div class="mt-4">
+        <x-jet-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
+        <x-jet-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
+    </div>
+
+    @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
+        <div class="mt-4">
+            <x-jet-label for="terms">
+                <div class="flex items-center">
+                    <x-jet-checkbox name="terms" id="terms"/>
+
+                    <div class="ml-2">
+                        {!! __('I agree to the :terms_of_service and :privacy_policy', [
+                                'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline text-sm text-gray-600 hover:text-gray-900">'.__('Terms of Service').'</a>',
+                                'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline text-sm text-gray-600 hover:text-gray-900">'.__('Privacy Policy').'</a>',
+                        ]) !!}
+                    </div>
+                </div>
+            </x-jet-label>
+        </div>
+    @endif
+
+    <div class="flex items-center justify-end mt-4">
+        <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">
+            {{ __('Already registered?') }}
+        </a>
+
+        <x-jet-button class="ml-4">
+            {{ __('Register') }}
+        </x-jet-button>
+    </div>
+</form>
+
+now change the model>>User.php 
+protected $fillable = [
+        'name',
+        'email',
+        'phone',
+        'address',
+        'password',
+    ];
+
+now change the app>actions>fortify>CreateNewUser.php 
+return User::create([
+            'name' => $input['name'],
+            'email' => $input['email'],
+            'phone' => $input['phone'],
+            'address' => $input['address'],
+            'password' => Hash::make($input['password']),
+        ]);
+
+now registration user
+now registration admin and change the usertype from xampp>user table> usertype 0 to 1.
+now go to the Providers>>RouteServiceProvider.php 
+change>>> public const HOME = '/dashboard'; to     public const HOME = 'redirect';
+
+now go to routes>>>web.php 
+add this route 
+Route::get('/redirect', [HomeController::class, 'redirect']);
+input>> use App\Http\Controllers\HomeController;
+
+Now create a controller name HomeController;
+php artisan make:controller HomeController
+go to HomeController>>
+input>> use App\Models\User;
+input>> use Illuminate\Support\Facades\Auth;
+class HomeController extends Controller
+{
+    public function redirect()
+    {
+        $usertype=Auth::user()->usertype;
+
+        if($usertype=='1')
+        {
+            return view('admin.home');
+        }
+        else
+        {
+            return view('dashboard');
+        }
+    }
+}
+
+now creating admin dashboard>>
+views> creating admin folder
+admin> creating home.blade.php file 
+copy from views>profile>dashboard.blade.php to home.blade.php paste 
+admin>>>home.blade.php  this code for only signout option
+<x-app-layout>
+    
+</x-app-layout>
+
+now go to the views>layouts>app.blade.php 
+delete from <div class="min-h-screen bg-gray-100">
+            @livewire('navigation-menu')
+deleting>> min-h-screen bg-gray-100
+finishing>>><div class="">
+this work for deleting for admin dashboard background
+
+how to remove logo>>>profile>navigation-menu.blade.php 
+remove>>>
+<!-- Logo -->
+<div class="flex-shrink-0 flex items-center">
+    <a href="{{ route('dashboard') }}">
+        <x-jet-application-mark class="block h-9 w-auto" />
+    </a>
+</div>
+
+all work is done 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
