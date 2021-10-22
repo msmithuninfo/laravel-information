@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    Importing User & Admin Template
+
+    Template link for user>> https://templatemo.com/tm-546-sixteen-clothing
+    Template link for admin>> https://github.com/BootstrapDash/corona-free-dark-bootstrap-admin-template
+
+for user template>>>
+downloade and extract folder
+copy all file and folder without prepros-6.config file
+past all file and folder into public folder 
+now views>create folder name>User>home.blade.php 
+now copy from public>index.html all text 
+now go to route>>> create route 
+Route::get('/home', [HomeController::class, 'index']);
+go to HomeController>>>
+public function index()
+    {
+        return view('User.home');
+    }
+
+remove web.php 
+Route::get('/', function () {
+    return view('welcome');
+});
+
+change route>
+Route::get('/home', [HomeController::class, 'index']);
+to
+Route::get('/', [HomeController::class, 'index']);
+
+
+Now go to User>>home.blade.php 
+adding after contact us>>> copy from welcome.blade.php 
+@if (Route::has('login'))
+    <div class="hidden fixed top-0 right-0 px-6 py-4 sm:block">
+        @auth
+            <a href="{{ url('/dashboard') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Dashboard</a>
+        @else
+            <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-500 underline">Log in</a>
+
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 dark:text-gray-500 underline">Register</a>
+            @endif
+        @endauth
+    </div>
+@endif
+
+and past home.blade.php after contact us and some change 
+<li class="nav-item">
+    @if (Route::has('login'))
+        @auth
+            <li><a class="nav-link" href="{{ url('/dashboard') }}">Dashboard</a></li>
+        @else
+            <li><a class="nav-link" href="{{ route('login') }}">Log in</a></li>
+
+            @if (Route::has('register'))
+                <li><a class="nav-link" href="{{ route('register') }}">Register</a></li>
+            @endif
+        @endauth
+    @endif
+  </li>
+
+now after login >>> open user page and hide login and register, and show logout option 
+
+HomeController>>>
+public function redirect()
+    {
+        $usertype=Auth::user()->usertype;
+
+        if($usertype=='1')
+        {
+            return view('admin.home');
+        }
+        else
+        {
+            return view('user.home');
+        }
+    }
+
+go to navigaton-menu.blade.php 
+remove this 
+<!-- Navigation Links -->
+<div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+    <x-jet-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+        {{ __('Dashboard') }}
+    </x-jet-nav-link>
+</div>
+than remove class="bg-white border-b border-gray-100" from <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
+</nav>
+
+home.blade.php li after somechange
+<li class="nav-item">
+    @if (Route::has('login'))
+        @auth
+                <x-app-layout>
+
+                </x-app-layout>
+        @else
+            <li><a class="nav-link" href="{{ route('login') }}">Log in</a></li>
+
+            @if (Route::has('register'))
+                <li><a class="nav-link" href="{{ route('register') }}">Register</a></li>
+            @endif
+        @endauth
+    @endif
+  </li>
+  
+Done user importing....
+
+start admin importing ... 
+Template link for admin>> https://github.com/BootstrapDash/corona-free-dark-bootstrap-admin-template
+downloade and extract folder
+copy tamplate folder all data and past public folder to admin folder paste 
+now copy and past into views>admin > home.blade.php after old code 
+now after run, the css link error , how to solve it 
+add admin in every link before assets 
+now cut 
+<x-app-layout>
+    
+</x-app-layout> 
+this code cut 
+now delete this code 
+<li class="nav-item dropdown">
+    <a class="nav-link" id="profileDropdown" href="#" data-toggle="dropdown">
+      <div class="navbar-profile">
+        <img class="img-xs rounded-circle" src="assets/images/faces/face15.jpg" alt="">
+        <p class="mb-0 d-none d-sm-block navbar-profile-name">Henry Klein</p>
+        <i class="mdi mdi-menu-down d-none d-sm-block"></i>
+      </div>
+    </a>
+    <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="profileDropdown">
+      <h6 class="p-3 mb-0">Profile</h6>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item preview-item">
+        <div class="preview-thumbnail">
+          <div class="preview-icon bg-dark rounded-circle">
+            <i class="mdi mdi-settings text-success"></i>
+          </div>
+        </div>
+        <div class="preview-item-content">
+          <p class="preview-subject mb-1">Settings</p>
+        </div>
+      </a>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item preview-item">
+        <div class="preview-thumbnail">
+          <div class="preview-icon bg-dark rounded-circle">
+            <i class="mdi mdi-logout text-danger"></i>
+          </div>
+        </div>
+        <div class="preview-item-content">
+          <p class="preview-subject mb-1">Log out</p>
+        </div>
+      </a>
+      <div class="dropdown-divider"></div>
+      <p class="p-3 mb-0 text-center">Advanced settings</p>
+    </div>
+  </li>
+  and past this position 
+  <li>
+    <x-app-layout>
+    
+    </x-app-layout>
+  </li>
+
+  create new file in admin folder 
+  navber.blade.php 
+  cut  nav code and past navbar file and include when cut code 
+  @include('user.product')
+
+
+
+
+  Edit HomeController 
+  public function index()
+    {
+        if(Auth::id())
+        {
+            return redirect('redirect');
+        }
+        else
+        {
+            return view('user.home');
+        }
+    }
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
